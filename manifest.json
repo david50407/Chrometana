@@ -6,6 +6,7 @@
   "version": "3.0.0",
   "permissions": [
     "*://*.bing.com/",
+    "<all_urls>",
     "webRequest",
     "webRequestBlocking",
     "storage",
@@ -14,12 +15,6 @@
   "background": {
     "scripts": ["background/bootstrap.js"]
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*.bing.com/search*"],
-      "js": ["background/redirect.js"]
-    }
-  ],
   "icons": {
     "32": "images/logo-32.png",
     "64": "images/logo-64.png",

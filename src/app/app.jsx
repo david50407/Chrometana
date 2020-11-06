@@ -75,6 +75,7 @@ const OtherSettings = () => {
     true
   );
   const [cortanaOnly, setCortanaOnly] = useChromeStorage("cortana_only", true);
+  const [useMobileUAInSidebar, setUseMobileUAInSidebar] = useChromeStorage("use_mobile_ua_in_sidebar", true);
 
   return (
     <div className="flex-column">
@@ -109,6 +110,16 @@ const OtherSettings = () => {
           onChange={e => setCortanaOnly(e.target.checked)}
         />
         <label for="cortana-only">Only redirect Cortana searches</label>
+      </div>
+      <div>
+        <input
+          type="checkbox"
+          id="use_mobile_ua_in_sidebar"
+          name="Use mobile UA in sidebar (Edge)"
+          checked={useMobileUAInSidebar}
+          onChange={e => setUseMobileUAInSidebar(e.target.checked)}
+        />
+        <label for="use_mobile_ua_in_sidebar">Use mobile UA in sidebar (Edge)</label>
       </div>
     </div>
   );

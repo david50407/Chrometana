@@ -6,6 +6,7 @@
   var enable_open_website;
   var cortana_only;
   var exclude_settings_app;
+  var use_mobile_ua_in_sidebar;
   function convertURL(url) {
     var querystringparams = getUrlVars(url);
     var source = getKeyValue(querystringparams, "form");
@@ -76,6 +77,7 @@
         enable_open_website: true,
         cortana_only: false,
         exclude_settings_app: true,
+        use_mobile_ua_in_sidebar: true,
       },
       () => {},
     );
@@ -89,6 +91,7 @@
       "enable_open_website",
       "cortana_only",
       "exclude_settings_app",
+      "use_mobile_ua_in_sidebar",
     ],
     function(obj) {
       use_custom_engine = obj.use_custom_engine;
@@ -97,6 +100,7 @@
       cortana_only = obj.cortana_only;
       exclude_settings_app = obj.exclude_settings_app;
       custom_engine = obj.custom_engine;
+      use_mobile_ua_in_sidebar = obj.use_mobile_ua_in_sidebar;
       console.log("Fetched values", obj);
       if (obj.use_custom_engine === undefined) {
         setDefaults();
@@ -123,7 +127,36 @@
     if (typeof changes.use_custom_engine !== "undefined") {
       use_custom_engine = changes.use_custom_engine.newValue;
     }
+    if (typeof changes.use_mobile_ua_in_sidebar !== "undefined") {
+      use_mobile_ua_in_sidebar = changes.use_mobile_ua_in_sidebar;
+    }
   });
+
+  function isSidebar(headers) {
+    return headers.filter(function (_) { 
+      return _.name.toLowerCase() === 'x-sidebar-search' &&
+        _.value.toString() === 'true';
+      }).length > 0;
+  }
+
+  chrome.webRequest.onBeforeSendHeaders.addListener(
+    function(details) {
+      if (use_mobile_ua_in_sidebar) {
+        let in_sidebar = isSidebar(details.requestHeaders);
+        if (in_sidebar) {
+          for (let header of details.requestHeaders) {
+            if (header.name.toLowerCase() === 'user-agent') {
+              header.value = header.value.replace(/^(Mozilla\/[^(]+)\([^)]+\)/ig, '$1(Linux; Android 6.0; Nexus 5 Build/MRA58N)')
+              break;
+            }
+          }
+          return { requestHeaders: details.requestHeaders };
+        }
+      }
+    },
+    { urls: ["<all_urls>"] },
+    ["blocking", "requestHeaders"],
+  );
 
   chrome.webRequest.onBeforeRequest.addListener(
     function(details) {
